@@ -1,5 +1,5 @@
-// CHUM Resize - Image Optimizer Pro v2.0
-// Features: Multi-platform presets, URL fetch, Clipboard paste, Smart compression, Watermark
+// CHUM Resize - Image Optimizer Pro v2.1
+// Features: Multi-platform presets, Clipboard paste, Smart compression, Watermark
 
 class ImageResizer {
     constructor() {
@@ -19,6 +19,7 @@ class ImageResizer {
             twitter: { size: 1500, name: 'Twitter/X' },
             linkedin: { size: 1200, name: 'LinkedIn' },
             zalo: { size: 1280, name: 'Zalo' },
+            tiktok: { size: 1080, name: 'TikTok' },
             custom: { size: 2048, name: 'Tùy chỉnh' }
         };
 
@@ -39,8 +40,7 @@ class ImageResizer {
         this.progressText = document.getElementById('progressText');
         this.downloadAllBtn = document.getElementById('downloadAllBtn');
         this.clearAllBtn = document.getElementById('clearAllBtn');
-        this.urlInput = document.getElementById('urlInput');
-        this.fetchUrlBtn = document.getElementById('fetchUrlBtn');
+        this.pasteClipboardBtn = document.getElementById('pasteClipboardBtn');
         this.customSizeInput = document.getElementById('customSizeInput');
         this.customSizeLabel = document.getElementById('customSizeLabel');
         this.toggleSettings = document.getElementById('toggleSettings');
@@ -60,14 +60,11 @@ class ImageResizer {
         this.uploadZone.addEventListener('drop', (e) => this.handleDrop(e));
         this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
 
-        // Clipboard paste
+        // Clipboard paste - keyboard
         document.addEventListener('paste', (e) => this.handlePaste(e));
 
-        // URL fetch
-        this.fetchUrlBtn.addEventListener('click', () => this.fetchFromUrl());
-        this.urlInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.fetchFromUrl();
-        });
+        // Clipboard paste - button click
+        this.pasteClipboardBtn.addEventListener('click', () => this.pasteFromClipboardButton());
 
         // Quality slider
         this.qualitySlider.addEventListener('input', (e) => {
@@ -169,21 +166,90 @@ class ImageResizer {
     }
 
     handlePaste(e) {
-        const items = e.clipboardData?.items;
-        if (!items) return;
+        console.log('Paste event triggered');
+
+        // Get clipboard data
+        const clipboardData = e.clipboardData || window.clipboardData;
+        if (!clipboardData) {
+            console.log('No clipboard data');
+            return;
+        }
+
+        const items = clipboardData.items || clipboardData.files;
+        if (!items || items.length === 0) {
+            console.log('No items in clipboard');
+            return;
+        }
 
         const imageFiles = [];
-        for (const item of items) {
-            if (item.type.startsWith('image/')) {
-                const file = item.getAsFile();
-                if (file) imageFiles.push(file);
+
+        // Check items
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+
+            // DataTransferItem
+            if (item.kind === 'file' || item.type?.startsWith('image/')) {
+                const file = item.getAsFile ? item.getAsFile() : item;
+                if (file && file.type?.startsWith('image/')) {
+                    imageFiles.push(file);
+                }
             }
         }
 
+        // Also check files directly (for some browsers)
+        if (clipboardData.files && clipboardData.files.length > 0) {
+            for (let i = 0; i < clipboardData.files.length; i++) {
+                const file = clipboardData.files[i];
+                if (file.type?.startsWith('image/') && !imageFiles.includes(file)) {
+                    imageFiles.push(file);
+                }
+            }
+        }
+
+        console.log('Found images:', imageFiles.length);
+
         if (imageFiles.length > 0) {
             e.preventDefault();
-            this.showToast('Đã dán ' + imageFiles.length + ' ảnh từ clipboard', 'success');
+            this.showToast('✓ Đã dán ' + imageFiles.length + ' ảnh từ clipboard!', 'success');
             this.processFiles(imageFiles);
+        }
+    }
+
+    // Paste from clipboard using button click (uses Clipboard API)
+    async pasteFromClipboardButton() {
+        try {
+            // Check if Clipboard API is available
+            if (!navigator.clipboard || !navigator.clipboard.read) {
+                this.showToast('Trình duyệt không hỗ trợ. Hãy dùng Ctrl+V', 'error');
+                return;
+            }
+
+            const clipboardItems = await navigator.clipboard.read();
+            const imageFiles = [];
+
+            for (const item of clipboardItems) {
+                // Find image type in the clipboard item
+                const imageType = item.types.find(type => type.startsWith('image/'));
+                if (imageType) {
+                    const blob = await item.getType(imageType);
+                    const file = new File([blob], 'clipboard_image.png', { type: imageType });
+                    imageFiles.push(file);
+                }
+            }
+
+            if (imageFiles.length > 0) {
+                this.showToast('✓ Đã dán ' + imageFiles.length + ' ảnh từ clipboard!', 'success');
+                this.processFiles(imageFiles);
+            } else {
+                this.showToast('Không tìm thấy ảnh trong clipboard', 'error');
+            }
+        } catch (error) {
+            console.error('Clipboard error:', error);
+            if (error.name === 'NotAllowedError') {
+                this.showToast('Vui lòng cho phép truy cập clipboard hoặc dùng Ctrl+V', 'error');
+            } else {
+                this.showToast('Lỗi đọc clipboard. Hãy thử Ctrl+V', 'error');
+            }
         }
     }
 

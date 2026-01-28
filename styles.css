@@ -140,6 +140,48 @@ body {
     color: var(--accent-blue)
 }
 
+.github-badge {
+    background: var(--bg-tertiary);
+    border-color: var(--border-primary);
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: var(--transition)
+}
+
+.github-badge:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent-blue)
+}
+
+.paste-section {
+    padding: 16px 20px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg)
+}
+
+.paste-btn-large {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #a371f7 0%, #58a6ff 100%);
+    border: none;
+    border-radius: var(--radius-md);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition)
+}
+
+.paste-btn-large:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(163, 113, 247, 0.4)
+}
+
 .main-content {
     flex: 1;
     display: flex;
@@ -237,6 +279,10 @@ body {
     background: var(--bg-hover);
     border: 1px solid var(--border-primary);
     color: var(--text-secondary)
+}
+
+.preset-icon.tiktok {
+    background: linear-gradient(135deg, #00f2ea 0%, #ff0050 100%)
 }
 
 .zalo-text {
@@ -406,6 +452,27 @@ body {
 
 .url-fetch-btn:hover {
     transform: scale(1.02)
+}
+
+.paste-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #a371f7 0%, #58a6ff 100%);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #fff;
+    font-size: .85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap
+}
+
+.paste-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(163, 113, 247, 0.4)
 }
 
 .settings-panel {
