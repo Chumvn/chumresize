@@ -1,5 +1,5 @@
-// Image Resizer 2048 - Facebook Optimizer
-// Main Application Logic - Supports ALL image formats including HEIC
+// CHUM Resize - Image Optimizer Pro v2.0
+// Features: Multi-platform presets, URL fetch, Clipboard paste, Smart compression, Watermark
 
 class ImageResizer {
     constructor() {
@@ -7,6 +7,20 @@ class ImageResizer {
         this.maxSize = 2048;
         this.quality = 0.92;
         this.format = 'jpeg';
+        this.platform = 'custom';
+        this.smartCompress = true;
+        this.addWatermark = false;
+        this.watermarkPosition = 'bottomRight';
+        this.watermarkOpacity = 0.5;
+
+        this.platforms = {
+            facebook: { size: 2048, name: 'Facebook' },
+            instagram: { size: 1080, name: 'Instagram' },
+            twitter: { size: 1500, name: 'Twitter/X' },
+            linkedin: { size: 1200, name: 'LinkedIn' },
+            zalo: { size: 1280, name: 'Zalo' },
+            custom: { size: 2048, name: 'Tùy chỉnh' }
+        };
 
         this.initElements();
         this.initEventListeners();
@@ -25,15 +39,35 @@ class ImageResizer {
         this.progressText = document.getElementById('progressText');
         this.downloadAllBtn = document.getElementById('downloadAllBtn');
         this.clearAllBtn = document.getElementById('clearAllBtn');
+        this.urlInput = document.getElementById('urlInput');
+        this.fetchUrlBtn = document.getElementById('fetchUrlBtn');
+        this.customSizeInput = document.getElementById('customSizeInput');
+        this.customSizeLabel = document.getElementById('customSizeLabel');
+        this.toggleSettings = document.getElementById('toggleSettings');
+        this.settingsContent = document.getElementById('settingsContent');
+        this.smartCompressCheckbox = document.getElementById('smartCompress');
+        this.watermarkCheckbox = document.getElementById('addWatermark');
+        this.watermarkOptions = document.getElementById('watermarkOptions');
+        this.watermarkPosition = document.getElementById('watermarkPosition');
+        this.watermarkOpacitySlider = document.getElementById('watermarkOpacity');
     }
 
     initEventListeners() {
-        // Upload zone events
+        // Upload zone
         this.uploadZone.addEventListener('click', () => this.fileInput.click());
         this.uploadZone.addEventListener('dragover', (e) => this.handleDragOver(e));
         this.uploadZone.addEventListener('dragleave', (e) => this.handleDragLeave(e));
         this.uploadZone.addEventListener('drop', (e) => this.handleDrop(e));
         this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+
+        // Clipboard paste
+        document.addEventListener('paste', (e) => this.handlePaste(e));
+
+        // URL fetch
+        this.fetchUrlBtn.addEventListener('click', () => this.fetchFromUrl());
+        this.urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.fetchFromUrl();
+        });
 
         // Quality slider
         this.qualitySlider.addEventListener('input', (e) => {
@@ -41,13 +75,18 @@ class ImageResizer {
             this.qualityValue.textContent = e.target.value;
         });
 
-        // Size buttons
-        document.querySelectorAll('.size-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                this.maxSize = parseInt(btn.dataset.size);
-            });
+        // Custom size input
+        this.customSizeInput.addEventListener('change', (e) => {
+            const size = parseInt(e.target.value);
+            if (size >= 100 && size <= 8192) {
+                this.maxSize = size;
+                this.customSizeLabel.textContent = size + 'px';
+            }
+        });
+
+        // Platform presets
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => this.selectPlatform(btn));
         });
 
         // Format buttons
@@ -59,9 +98,44 @@ class ImageResizer {
             });
         });
 
+        // Settings toggle
+        this.toggleSettings.addEventListener('click', () => {
+            this.settingsContent.classList.toggle('collapsed');
+            this.toggleSettings.classList.toggle('collapsed');
+        });
+
+        // Smart compression
+        this.smartCompressCheckbox.addEventListener('change', (e) => {
+            this.smartCompress = e.target.checked;
+        });
+
+        // Watermark
+        this.watermarkCheckbox.addEventListener('change', (e) => {
+            this.addWatermark = e.target.checked;
+            this.watermarkOptions.style.display = e.target.checked ? 'flex' : 'none';
+        });
+
+        this.watermarkOpacitySlider.addEventListener('input', (e) => {
+            this.watermarkOpacity = e.target.value / 100;
+            document.querySelector('.opacity-value').textContent = e.target.value + '%';
+        });
+
         // Action buttons
         this.downloadAllBtn.addEventListener('click', () => this.downloadAll());
         this.clearAllBtn.addEventListener('click', () => this.clearAll());
+    }
+
+    selectPlatform(btn) {
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        this.platform = btn.dataset.platform;
+        this.maxSize = parseInt(btn.dataset.size);
+
+        if (this.platform !== 'custom') {
+            this.customSizeInput.value = this.maxSize;
+        }
+        this.customSizeLabel.textContent = this.maxSize + 'px';
     }
 
     handleDragOver(e) {
@@ -81,68 +155,90 @@ class ImageResizer {
         e.stopPropagation();
         this.uploadZone.classList.remove('dragover');
 
-        // Accept all image files including HEIC/HEIF
         const files = Array.from(e.dataTransfer.files).filter(f =>
             f.type.startsWith('image/') ||
-            f.name.toLowerCase().endsWith('.heic') ||
-            f.name.toLowerCase().endsWith('.heif') ||
-            f.name.toLowerCase().endsWith('.bmp') ||
-            f.name.toLowerCase().endsWith('.tiff') ||
-            f.name.toLowerCase().endsWith('.tif') ||
-            f.name.toLowerCase().endsWith('.svg')
+            f.name.toLowerCase().match(/\.(heic|heif|bmp|tiff?|svg)$/)
         );
-        if (files.length > 0) {
-            this.processFiles(files);
-        }
+        if (files.length > 0) this.processFiles(files);
     }
 
     handleFileSelect(e) {
         const files = Array.from(e.target.files);
-        if (files.length > 0) {
-            this.processFiles(files);
-        }
-        // Reset input for re-selection
+        if (files.length > 0) this.processFiles(files);
         this.fileInput.value = '';
     }
 
-    // Check if file is HEIC/HEIF format
+    handlePaste(e) {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+
+        const imageFiles = [];
+        for (const item of items) {
+            if (item.type.startsWith('image/')) {
+                const file = item.getAsFile();
+                if (file) imageFiles.push(file);
+            }
+        }
+
+        if (imageFiles.length > 0) {
+            e.preventDefault();
+            this.showToast('Đã dán ' + imageFiles.length + ' ảnh từ clipboard', 'success');
+            this.processFiles(imageFiles);
+        }
+    }
+
+    async fetchFromUrl() {
+        const url = this.urlInput.value.trim();
+        if (!url) {
+            this.showToast('Vui lòng nhập URL ảnh', 'error');
+            return;
+        }
+
+        try {
+            this.showProcessing();
+            this.updateProcessingText('Đang tải ảnh từ URL...');
+
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Không thể tải ảnh');
+
+            const blob = await response.blob();
+            if (!blob.type.startsWith('image/')) {
+                throw new Error('URL không phải là ảnh');
+            }
+
+            const fileName = url.split('/').pop().split('?')[0] || 'image_from_url.jpg';
+            const file = new File([blob], fileName, { type: blob.type });
+
+            await this.processFiles([file]);
+            this.urlInput.value = '';
+            this.showToast('Đã tải ảnh từ URL thành công', 'success');
+        } catch (error) {
+            this.hideProcessing();
+            this.showToast('Lỗi: ' + error.message, 'error');
+        }
+    }
+
     isHeicFile(file) {
         const name = file.name.toLowerCase();
         return name.endsWith('.heic') || name.endsWith('.heif') ||
             file.type === 'image/heic' || file.type === 'image/heif';
     }
 
-    // Convert HEIC to standard format using heic2any library
     async convertHeicToBlob(file) {
-        try {
-            // Check if heic2any is available
-            if (typeof heic2any === 'undefined') {
-                throw new Error('HEIC converter library not loaded');
-            }
-
-            const blob = await heic2any({
-                blob: file,
-                toType: 'image/jpeg',
-                quality: 0.95
-            });
-            // heic2any may return an array of blobs for multi-frame HEIC
-            return Array.isArray(blob) ? blob[0] : blob;
-        } catch (error) {
-            console.error('HEIC conversion error:', error);
-            throw new Error('Không thể chuyển đổi file HEIC. Vui lòng thử lại.');
+        if (typeof heic2any === 'undefined') {
+            throw new Error('HEIC converter not loaded');
         }
+        const blob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.95 });
+        return Array.isArray(blob) ? blob[0] : blob;
     }
 
     updateProcessingText(text) {
-        const processingText = document.querySelector('.processing-text');
-        if (processingText) {
-            processingText.textContent = text;
-        }
+        const el = document.querySelector('.processing-text');
+        if (el) el.textContent = text;
     }
 
     async processFiles(files) {
         this.showProcessing();
-
         const total = files.length;
         let processed = 0;
 
@@ -151,7 +247,6 @@ class ImageResizer {
                 let processableFile = file;
                 const originalFileName = file.name;
 
-                // Convert HEIC files first
                 if (this.isHeicFile(file)) {
                     this.updateProcessingText('Đang chuyển đổi HEIC...');
                     processableFile = await this.convertHeicToBlob(file);
@@ -165,7 +260,7 @@ class ImageResizer {
                 processed++;
                 this.updateProgress(processed, total);
             } catch (error) {
-                console.error('Error processing image:', error);
+                console.error('Error:', error);
                 processed++;
                 this.updateProgress(processed, total);
             }
@@ -192,38 +287,39 @@ class ImageResizer {
                     canvas.width = newWidth;
                     canvas.height = newHeight;
 
-                    // High quality rendering
                     ctx.imageSmoothingEnabled = true;
                     ctx.imageSmoothingQuality = 'high';
-
-                    // Draw image
                     ctx.drawImage(img, 0, 0, newWidth, newHeight);
 
-                    // Get mime type
+                    // Add watermark if enabled
+                    if (this.addWatermark) {
+                        this.drawWatermark(ctx, newWidth, newHeight);
+                    }
+
                     const mimeType = this.format === 'jpeg' ? 'image/jpeg' :
                         this.format === 'png' ? 'image/png' : 'image/webp';
 
-                    // Convert to blob
-                    canvas.toBlob((blob) => {
-                        const resizedUrl = URL.createObjectURL(blob);
-                        const originalSize = this.formatFileSize(file.size);
-                        const newSize = this.formatFileSize(blob.size);
+                    // Smart compression
+                    let quality = this.quality;
+                    if (this.smartCompress && this.format === 'jpeg') {
+                        const pixels = newWidth * newHeight;
+                        if (pixels > 4000000) quality = Math.min(quality, 0.85);
+                    }
 
+                    canvas.toBlob((blob) => {
                         resolve({
                             id: Date.now() + Math.random(),
                             name: this.getNewFileName(fileName),
                             originalName: fileName,
                             originalWidth: img.width,
                             originalHeight: img.height,
-                            newWidth,
-                            newHeight,
-                            originalSize,
-                            newSize,
-                            blob,
-                            url: resizedUrl,
+                            newWidth, newHeight,
+                            originalSize: this.formatFileSize(file.size),
+                            newSize: this.formatFileSize(blob.size),
+                            blob, url: URL.createObjectURL(blob),
                             format: this.format
                         });
-                    }, mimeType, this.quality);
+                    }, mimeType, quality);
                 };
 
                 img.onerror = () => reject(new Error('Failed to load image'));
@@ -235,39 +331,57 @@ class ImageResizer {
         });
     }
 
+    drawWatermark(ctx, width, height) {
+        const text = '© CHUM Resize';
+        const fontSize = Math.max(12, Math.min(width, height) * 0.025);
+
+        ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+        ctx.fillStyle = `rgba(255, 255, 255, ${this.watermarkOpacity})`;
+        ctx.strokeStyle = `rgba(0, 0, 0, ${this.watermarkOpacity * 0.5})`;
+        ctx.lineWidth = 1;
+
+        const metrics = ctx.measureText(text);
+        const padding = fontSize * 0.8;
+        let x, y;
+
+        const pos = document.getElementById('watermarkPosition')?.value || 'bottomRight';
+
+        switch (pos) {
+            case 'topLeft': x = padding; y = padding + fontSize; break;
+            case 'topRight': x = width - metrics.width - padding; y = padding + fontSize; break;
+            case 'bottomLeft': x = padding; y = height - padding; break;
+            case 'bottomRight': x = width - metrics.width - padding; y = height - padding; break;
+            case 'center': x = (width - metrics.width) / 2; y = height / 2; break;
+            default: x = width - metrics.width - padding; y = height - padding;
+        }
+
+        ctx.strokeText(text, x, y);
+        ctx.fillText(text, x, y);
+    }
+
     calculateDimensions(width, height) {
-        if (width <= this.maxSize && height <= this.maxSize) {
-            return { width, height };
-        }
-
+        if (width <= this.maxSize && height <= this.maxSize) return { width, height };
         const ratio = width / height;
-
         if (width > height) {
-            return {
-                width: this.maxSize,
-                height: Math.round(this.maxSize / ratio)
-            };
-        } else {
-            return {
-                width: Math.round(this.maxSize * ratio),
-                height: this.maxSize
-            };
+            return { width: this.maxSize, height: Math.round(this.maxSize / ratio) };
         }
+        return { width: Math.round(this.maxSize * ratio), height: this.maxSize };
     }
 
     getNewFileName(originalName) {
         const lastDot = originalName.lastIndexOf('.');
         const baseName = lastDot > 0 ? originalName.substring(0, lastDot) : originalName;
-        const extension = this.format === 'jpeg' ? 'jpg' : this.format;
-        return `${baseName}_${this.maxSize}px.${extension}`;
+        const ext = this.format === 'jpeg' ? 'jpg' : this.format;
+        const platformSuffix = this.platform !== 'custom' ? `_${this.platform}` : '';
+        return `${baseName}${platformSuffix}_${this.maxSize}px.${ext}`;
     }
 
     formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
+        if (bytes === 0) return '0 B';
         const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const sizes = ['B', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
     }
 
     addImageCard(image) {
@@ -276,46 +390,22 @@ class ImageResizer {
         card.dataset.id = image.id;
 
         card.innerHTML = `
-            <div class="image-preview">
-                <img src="${image.url}" alt="${image.name}">
-            </div>
+            <div class="image-preview"><img src="${image.url}" alt="${image.name}"></div>
             <div class="image-info">
                 <div class="image-name" title="${image.name}">${image.name}</div>
                 <div class="image-stats">
-                    <div class="stat-item">
-                        <span class="stat-label">Gốc</span>
-                        <span class="stat-value">${image.originalWidth}×${image.originalHeight}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Mới</span>
-                        <span class="stat-value success">${image.newWidth}×${image.newHeight}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Dung lượng</span>
-                        <span class="stat-value">${image.newSize}</span>
-                    </div>
+                    <div class="stat-item"><span class="stat-label">Gốc</span><span class="stat-value">${image.originalWidth}×${image.originalHeight}</span></div>
+                    <div class="stat-item"><span class="stat-label">Mới</span><span class="stat-value success">${image.newWidth}×${image.newHeight}</span></div>
+                    <div class="stat-item"><span class="stat-label">Size</span><span class="stat-value">${image.newSize}</span></div>
                 </div>
                 <div class="image-actions">
-                    <button class="btn-icon download-btn" data-id="${image.id}">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Tải về
-                    </button>
-                    <button class="btn-icon danger remove-btn" data-id="${image.id}">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Xóa
-                    </button>
+                    <button class="btn-icon download-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Tải</button>
+                    <button class="btn-icon danger remove-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Xóa</button>
                 </div>
-            </div>
-        `;
+            </div>`;
 
-        // Add event listeners
         card.querySelector('.download-btn').addEventListener('click', () => this.downloadImage(image));
         card.querySelector('.remove-btn').addEventListener('click', () => this.removeImage(image.id));
-
         this.previewGrid.appendChild(card);
     }
 
@@ -334,25 +424,21 @@ class ImageResizer {
             URL.revokeObjectURL(this.images[index].url);
             this.images.splice(index, 1);
         }
-
         const card = this.previewGrid.querySelector(`[data-id="${id}"]`);
         if (card) {
-            card.style.animation = 'fadeOut 0.3s ease';
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(-10px)';
             setTimeout(() => {
                 card.remove();
                 this.updatePreviewArea();
-            }, 300);
+            }, 200);
         }
     }
 
     downloadAll() {
         if (this.images.length === 0) return;
-
-        this.images.forEach((image, index) => {
-            setTimeout(() => {
-                this.downloadImage(image);
-            }, index * 200);
-        });
+        this.images.forEach((image, i) => setTimeout(() => this.downloadImage(image), i * 150));
+        this.showToast(`Đang tải ${this.images.length} ảnh...`, 'success');
     }
 
     clearAll() {
@@ -381,25 +467,19 @@ class ImageResizer {
         this.progressFill.style.width = `${percent}%`;
         this.progressText.textContent = `${percent}%`;
     }
+
+    showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
 }
 
-// Fade out animation style
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes fadeOut {
-        from {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        to {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-    }
-`;
-document.head.appendChild(style);
-
-// Initialize app
-document.addEventListener('DOMContentLoaded', () => {
-    new ImageResizer();
-});
+// Initialize
+document.addEventListener('DOMContentLoaded', () => new ImageResizer());

@@ -1,0 +1,21 @@
+{
+    "name": "CHUM Resize - Image Optimizer Pro",
+    "short_name": "CHUM Resize",
+    "description": "Tool resize ảnh chuyên nghiệp cho Facebook, Instagram, Twitter, LinkedIn, Zalo",
+    "start_url": "index.html",
+    "display": "standalone",
+    "background_color": "#0d1117",
+    "theme_color": "#238636",
+    "icons": [
+        {
+            "src": "icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
