@@ -8,10 +8,6 @@
     <meta name="description" content="Tool resize ảnh chuyên nghiệp cho Facebook, Instagram, Twitter, LinkedIn, Zalo">
     <meta name="theme-color" content="#0d1117">
 
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
-
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,13 +48,6 @@
                     </svg>
                     GitHub
                 </a>
-                <span class="badge offline-badge" id="offlineBadge" style="display: none;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                        <path d="M5 12.55a11 11 0 0 1 14.08 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    Offline
-                </span>
                 <span class="badge version-badge">v2.1</span>
             </div>
         </header>
@@ -333,20 +322,6 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script src="app.js"></script>
-
-    <!-- Register Service Worker for PWA -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => {
-                        console.log('Service Worker registered');
-                        document.getElementById('offlineBadge').style.display = 'flex';
-                    })
-                    .catch(err => console.log('SW registration failed:', err));
-            });
-        }
-    </script>
 </body>
 
 </html>
