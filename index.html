@@ -4,330 +4,890 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHUM Resize - Image Optimizer Pro</title>
-    <meta name="description" content="Tool resize ảnh chuyên nghiệp cho Facebook, Instagram, Twitter, LinkedIn, Zalo">
-    <meta name="theme-color" content="#0d1117">
-
-    <!-- Favicon -->
+    <title>CHUM Resize</title>
+    <meta name="description" content="Tool resize ảnh cho mạng xã hội">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="apple-touch-icon" href="favicon.svg">
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="styles.css">
-
-    <!-- HEIC Converter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon .material-icons {
+            font-size: 22px;
+            color: #fff;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #667eea, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .github-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .github-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .github-link svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Platform Buttons */
+        .section {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #64748b;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .platform-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 14px 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #94a3b8;
+        }
+
+        .platform-btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .platform-btn.active {
+            background: rgba(102, 126, 234, 0.15);
+            border-color: rgba(102, 126, 234, 0.4);
+            color: #a5b4fc;
+        }
+
+        .platform-btn .icon {
+            font-size: 22px;
+        }
+
+        .platform-btn .name {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .platform-btn .size {
+            font-size: 10px;
+            opacity: 0.6;
+        }
+
+        /* Upload Zone */
+        .upload-zone {
+            border: 2px dashed rgba(102, 126, 234, 0.3);
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(102, 126, 234, 0.02);
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: rgba(102, 126, 234, 0.6);
+            background: rgba(102, 126, 234, 0.08);
+        }
+
+        .upload-zone .material-icons {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 12px;
+        }
+
+        .upload-zone h3 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .upload-zone p {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .formats {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .format-tag {
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        /* Settings */
+        .settings-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .setting-item label {
+            display: block;
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .size-input,
+        .quality-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .size-input:focus,
+        .quality-input:focus {
+            outline: none;
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .format-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        .format-btn {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: #94a3b8;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .format-btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .format-btn.active {
+            background: rgba(102, 126, 234, 0.15);
+            border-color: rgba(102, 126, 234, 0.4);
+            color: #a5b4fc;
+        }
+
+        /* Preview */
+        .preview-section {
+            display: none;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .preview-header h3 {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .preview-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .image-card {
+            display: flex;
+            gap: 14px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+        }
+
+        .image-thumb {
+            width: 72px;
+            height: 72px;
+            border-radius: 10px;
+            object-fit: cover;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .image-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .image-name {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .image-stats {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .image-stats .new {
+            color: #4ade80;
+        }
+
+        .image-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .icon-btn.download:hover {
+            background: rgba(102, 126, 234, 0.2);
+            color: #a5b4fc;
+        }
+
+        .icon-btn.delete:hover {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+
+        /* Processing */
+        .processing {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .processing-content {
+            text-align: center;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(102, 126, 234, 0.2);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin: 12px auto;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 200;
+        }
+
+        .toast {
+            padding: 12px 20px;
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-top: 8px;
+            font-size: 13px;
+            animation: slideIn 0.3s ease;
+            backdrop-filter: blur(8px);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+        }
+
+        .toast.success {
+            border-left: 3px solid #4ade80;
+        }
+
+        .toast.error {
+            border-left: 3px solid #f87171;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #475569;
+            font-size: 12px;
+        }
+
+        .footer kbd {
+            padding: 2px 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="app-container">
+    <div class="container">
         <!-- Header -->
         <header class="header">
             <div class="logo">
-                <div class="logo-icon-wrapper">
-                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2" />
-                        <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
-                        <path d="M21 15L16 10L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                        <path d="M14 18L10 14L3 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
-                </div>
-                <div class="logo-text-wrapper">
-                    <span class="logo-text">CHUM <span class="highlight">Resize</span></span>
-                    <span class="logo-subtitle">Image Optimizer Pro</span>
-                </div>
+                <div class="logo-icon"><span class="material-icons">photo_size_select_large</span></div>
+                <span class="logo-text">CHUM Resize</span>
             </div>
-            <div class="header-badges">
-                <a href="https://github.com/Chumvn/chumresize" target="_blank" class="badge github-badge">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
-                    </svg>
-                    GitHub
-                </a>
-                <span class="badge version-badge">v2.1</span>
-            </div>
+            <a href="https://github.com/Chumvn/chumresize" target="_blank" class="github-link">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z" />
+                </svg>
+                GitHub
+            </a>
         </header>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Platform Presets -->
-            <div class="platform-presets">
-                <h3 class="section-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2" />
-                        <path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                    </svg>
-                    Chọn nền tảng
-                </h3>
-                <div class="preset-grid">
-                    <button class="preset-btn" data-platform="facebook" data-size="2048">
-                        <div class="preset-icon facebook">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
-                            </svg>
-                        </div>
-                        <span class="preset-name">Facebook</span>
-                        <span class="preset-size">2048px</span>
-                    </button>
-                    <button class="preset-btn" data-platform="instagram" data-size="1080">
-                        <div class="preset-icon instagram">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="2" y="2" width="20" height="20" rx="5" />
-                                <circle cx="12" cy="12" r="4" />
-                                <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" />
-                            </svg>
-                        </div>
-                        <span class="preset-name">Instagram</span>
-                        <span class="preset-size">1080px</span>
-                    </button>
-                    <button class="preset-btn" data-platform="twitter" data-size="1500">
-                        <div class="preset-icon twitter">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path
-                                    d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                            </svg>
-                        </div>
-                        <span class="preset-name">Twitter/X</span>
-                        <span class="preset-size">1500px</span>
-                    </button>
-                    <button class="preset-btn" data-platform="linkedin" data-size="1200">
-                        <div class="preset-icon linkedin">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path
-                                    d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2zM4 6a2 2 0 100-4 2 2 0 000 4z" />
-                            </svg>
-                        </div>
-                        <span class="preset-name">LinkedIn</span>
-                        <span class="preset-size">1200px</span>
-                    </button>
-                    <button class="preset-btn" data-platform="zalo" data-size="1280">
-                        <div class="preset-icon zalo">
-                            <span class="zalo-text">Z</span>
-                        </div>
-                        <span class="preset-name">Zalo</span>
-                        <span class="preset-size">1280px</span>
-                    </button>
-                    <button class="preset-btn" data-platform="tiktok" data-size="1080">
-                        <div class="preset-icon tiktok">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path
-                                    d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z" />
-                            </svg>
-                        </div>
-                        <span class="preset-name">TikTok</span>
-                        <span class="preset-size">1080px</span>
-                    </button>
-                    <button class="preset-btn active" data-platform="custom" data-size="2048">
-                        <div class="preset-icon custom">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="3" />
-                                <path
-                                    d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24" />
-                            </svg>
-                        </div>
-                        <span class="preset-name">Tùy chỉnh</span>
-                        <span class="preset-size" id="customSizeLabel">2048px</span>
-                    </button>
-                </div>
+        <!-- Platforms -->
+        <section class="section">
+            <div class="section-title"><span class="material-icons" style="font-size:18px">devices</span> Chọn nền tảng
             </div>
-
-            <!-- Upload Zone -->
-            <div class="upload-zone" id="uploadZone">
-                <div class="upload-content">
-                    <div class="upload-icon">
-                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            <polyline points="17,8 12,3 7,8" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                            <line x1="12" y1="3" x2="12" y2="15" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </div>
-                    <h2 class="upload-title">Kéo thả ảnh vào đây</h2>
-                    <p class="upload-subtitle">hoặc click để chọn file • Ctrl+V để dán từ clipboard</p>
-                    <div class="upload-formats">
-                        <span class="format-tag">JPG</span>
-                        <span class="format-tag">PNG</span>
-                        <span class="format-tag">WEBP</span>
-                        <span class="format-tag">GIF</span>
-                        <span class="format-tag heic">HEIC</span>
-                        <span class="format-tag">BMP</span>
-                        <span class="format-tag">TIFF</span>
-                        <span class="format-tag">SVG</span>
-                    </div>
-                </div>
-                <input type="file" id="fileInput" accept="image/*,.heic,.heif" multiple hidden>
-            </div>
-
-            <!-- Clipboard Paste Section -->
-            <div class="paste-section">
-                <button class="paste-btn-large" id="pasteClipboardBtn" title="Dán ảnh từ clipboard">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                        <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        <rect x="8" y="2" width="8" height="4" rx="1" stroke="currentColor" stroke-width="2" />
-                    </svg>
-                    📋 Dán ảnh từ Clipboard (Ctrl+V)
+            <div class="platform-grid">
+                <button class="platform-btn" data-platform="facebook" data-size="2048">
+                    <span class="icon">📘</span>
+                    <span class="name">Facebook</span>
+                    <span class="size">2048px</span>
+                </button>
+                <button class="platform-btn" data-platform="instagram" data-size="1080">
+                    <span class="icon">📷</span>
+                    <span class="name">Instagram</span>
+                    <span class="size">1080px</span>
+                </button>
+                <button class="platform-btn" data-platform="twitter" data-size="1500">
+                    <span class="icon">✖️</span>
+                    <span class="name">Twitter/X</span>
+                    <span class="size">1500px</span>
+                </button>
+                <button class="platform-btn" data-platform="zalo" data-size="1280">
+                    <span class="icon">💬</span>
+                    <span class="name">Zalo</span>
+                    <span class="size">1280px</span>
+                </button>
+                <button class="platform-btn" data-platform="tiktok" data-size="1080">
+                    <span class="icon">🎵</span>
+                    <span class="name">TikTok</span>
+                    <span class="size">1080px</span>
+                </button>
+                <button class="platform-btn" data-platform="linkedin" data-size="1200">
+                    <span class="icon">💼</span>
+                    <span class="name">LinkedIn</span>
+                    <span class="size">1200px</span>
+                </button>
+                <button class="platform-btn active" data-platform="custom" data-size="2048">
+                    <span class="icon">⚙️</span>
+                    <span class="name">Tùy chỉnh</span>
+                    <span class="size" id="customLabel">2048px</span>
                 </button>
             </div>
+        </section>
 
-            <!-- Settings Panel -->
-            <div class="settings-panel">
-                <div class="settings-header">
-                    <h3 class="settings-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
-                            <path
-                                d="M12 1V3M12 21V23M4.22 4.22L5.64 5.64M18.36 18.36L19.78 19.78M1 12H3M21 12H23M4.22 19.78L5.64 18.36M18.36 5.64L19.78 4.22"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                        </svg>
-                        Cài đặt nâng cao
-                    </h3>
-                    <button class="toggle-settings" id="toggleSettings">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
+        <!-- Upload -->
+        <section class="section">
+            <div class="upload-zone" id="uploadZone">
+                <span class="material-icons">cloud_upload</span>
+                <h3>Kéo thả ảnh vào đây</h3>
+                <p>hoặc click để chọn • Ctrl+V để dán</p>
+                <div class="formats">
+                    <span class="format-tag">JPG</span>
+                    <span class="format-tag">PNG</span>
+                    <span class="format-tag">WEBP</span>
+                    <span class="format-tag">HEIC</span>
+                    <span class="format-tag">GIF</span>
+                </div>
+            </div>
+            <input type="file" id="fileInput" accept="image/*,.heic,.heif" multiple hidden>
+
+            <div class="settings-row">
+                <div class="setting-item">
+                    <label>Kích thước (px)</label>
+                    <input type="number" class="size-input" id="sizeInput" value="2048" min="100" max="8192">
+                </div>
+                <div class="setting-item">
+                    <label>Chất lượng (%)</label>
+                    <input type="number" class="quality-input" id="qualityInput" value="92" min="60" max="100">
+                </div>
+            </div>
+            <div class="setting-item" style="margin-top: 12px;">
+                <label>Định dạng xuất</label>
+                <div class="format-btns">
+                    <button class="format-btn active" data-format="jpeg">JPEG</button>
+                    <button class="format-btn" data-format="png">PNG</button>
+                    <button class="format-btn" data-format="webp">WEBP</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Preview -->
+        <section class="section preview-section" id="previewSection">
+            <div class="preview-header">
+                <h3><span class="material-icons" style="font-size:18px;vertical-align:middle">photo_library</span> Kết
+                    quả (<span id="imageCount">0</span>)</h3>
+                <div class="preview-actions">
+                    <button class="btn btn-secondary" id="clearBtn">
+                        <span class="material-icons" style="font-size:16px">delete</span> Xóa
+                    </button>
+                    <button class="btn btn-primary" id="downloadAllBtn">
+                        <span class="material-icons" style="font-size:16px">download</span> Tải tất cả
                     </button>
                 </div>
-                <div class="settings-content" id="settingsContent">
-                    <div class="settings-grid">
-                        <div class="setting-item">
-                            <label class="setting-label">Kích thước tùy chỉnh (px)</label>
-                            <div class="custom-size-input">
-                                <input type="number" id="customSizeInput" class="size-input" value="2048" min="100"
-                                    max="8192">
-                                <span class="size-unit">px</span>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <label class="setting-label">Chất lượng: <span id="qualityValue">92</span>%</label>
-                            <input type="range" id="qualitySlider" class="quality-slider" min="60" max="100" value="92">
-                            <div class="quality-labels">
-                                <span>Nhẹ</span>
-                                <span>Cân bằng</span>
-                                <span>Nét</span>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <label class="setting-label">Định dạng xuất</label>
-                            <div class="format-selector">
-                                <button class="format-btn active" data-format="jpeg">JPEG</button>
-                                <button class="format-btn" data-format="png">PNG</button>
-                                <button class="format-btn" data-format="webp">WEBP</button>
-                            </div>
-                        </div>
-                        <div class="setting-item">
-                            <label class="setting-label">Nén thông minh</label>
-                            <div class="compression-options">
-                                <label class="checkbox-wrapper">
-                                    <input type="checkbox" id="smartCompress" checked>
-                                    <span class="checkmark"></span>
-                                    <span>Tự động tối ưu dung lượng</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="setting-item watermark-setting">
-                            <label class="setting-label">Watermark bản quyền</label>
-                            <label class="checkbox-wrapper">
-                                <input type="checkbox" id="addWatermark">
-                                <span class="checkmark"></span>
-                                <span>Thêm "© CHUM Resize" vào ảnh</span>
-                            </label>
-                            <div class="watermark-options" id="watermarkOptions" style="display: none;">
-                                <select id="watermarkPosition" class="watermark-select">
-                                    <option value="bottomRight">Góc dưới phải</option>
-                                    <option value="bottomLeft">Góc dưới trái</option>
-                                    <option value="topRight">Góc trên phải</option>
-                                    <option value="topLeft">Góc trên trái</option>
-                                    <option value="center">Giữa ảnh</option>
-                                </select>
-                                <input type="range" id="watermarkOpacity" class="opacity-slider" min="10" max="100"
-                                    value="50">
-                                <span class="opacity-value">50%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
+            <div class="preview-grid" id="previewGrid"></div>
+        </section>
 
-            <!-- Preview Area -->
-            <div class="preview-area" id="previewArea" style="display: none;">
-                <div class="preview-header">
-                    <h3 class="preview-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor"
-                                stroke-width="2" />
-                            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" />
-                        </svg>
-                        Xem trước (<span id="imageCount">0</span> ảnh)
-                    </h3>
-                    <div class="preview-actions">
-                        <button class="btn btn-secondary" id="clearAllBtn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                <path
-                                    d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </svg>
-                            Xóa tất cả
-                        </button>
-                        <button class="btn btn-primary" id="downloadAllBtn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </svg>
-                            Tải tất cả
-                        </button>
-                    </div>
-                </div>
-                <div class="preview-grid" id="previewGrid"></div>
-            </div>
-
-            <!-- Processing Overlay -->
-            <div class="processing-overlay" id="processingOverlay" style="display: none;">
-                <div class="processing-content">
-                    <div class="spinner"></div>
-                    <p class="processing-text">Đang xử lý ảnh...</p>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <p class="progress-text" id="progressText">0%</p>
-                </div>
-            </div>
-        </main>
-
-        <!-- Footer -->
         <footer class="footer">
-            <div class="footer-brand">
-                <span class="footer-logo">© CHUM Resize</span>
-                <span class="footer-tagline">Tối ưu ảnh cho mạng xã hội</span>
-            </div>
-            <div class="footer-info">
-                <span class="keyboard-hint">
-                    <kbd>Ctrl</kbd> + <kbd>V</kbd> để dán ảnh
-                </span>
-            </div>
+            © CHUM Resize • <kbd>Ctrl</kbd> + <kbd>V</kbd> để dán ảnh
         </footer>
     </div>
 
-    <!-- Toast Container -->
+    <!-- Processing Overlay -->
+    <div class="processing" id="processing">
+        <div class="processing-content">
+            <div class="spinner"></div>
+            <p>Đang xử lý ảnh...</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p id="progressText">0%</p>
+        </div>
+    </div>
+
+    <!-- Toast -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <script src="app.js"></script>
+    <script>
+        class ImageResizer {
+            constructor() {
+                this.images = [];
+                this.maxSize = 2048;
+                this.quality = 0.92;
+                this.format = 'jpeg';
+                this.init();
+            }
+
+            init() {
+                this.uploadZone = document.getElementById('uploadZone');
+                this.fileInput = document.getElementById('fileInput');
+                this.previewSection = document.getElementById('previewSection');
+                this.previewGrid = document.getElementById('previewGrid');
+                this.imageCount = document.getElementById('imageCount');
+                this.sizeInput = document.getElementById('sizeInput');
+                this.qualityInput = document.getElementById('qualityInput');
+                this.processing = document.getElementById('processing');
+                this.progressFill = document.getElementById('progressFill');
+                this.progressText = document.getElementById('progressText');
+                this.customLabel = document.getElementById('customLabel');
+
+                // Upload
+                this.uploadZone.onclick = () => this.fileInput.click();
+                this.uploadZone.ondragover = e => { e.preventDefault(); this.uploadZone.classList.add('dragover'); };
+                this.uploadZone.ondragleave = () => this.uploadZone.classList.remove('dragover');
+                this.uploadZone.ondrop = e => {
+                    e.preventDefault();
+                    this.uploadZone.classList.remove('dragover');
+                    const files = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/') || /\.(heic|heif)$/i.test(f.name));
+                    if (files.length) this.processFiles(files);
+                };
+                this.fileInput.onchange = e => {
+                    if (e.target.files.length) this.processFiles([...e.target.files]);
+                    this.fileInput.value = '';
+                };
+
+                // Paste
+                document.onpaste = e => {
+                    const items = e.clipboardData?.items;
+                    if (!items) return;
+                    const files = [];
+                    for (let item of items) {
+                        if (item.type.startsWith('image/')) {
+                            const file = item.getAsFile();
+                            if (file) files.push(file);
+                        }
+                    }
+                    if (files.length) {
+                        e.preventDefault();
+                        this.toast('✓ Đã dán ' + files.length + ' ảnh', 'success');
+                        this.processFiles(files);
+                    }
+                };
+
+                // Platform buttons
+                document.querySelectorAll('.platform-btn').forEach(btn => {
+                    btn.onclick = () => {
+                        document.querySelectorAll('.platform-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.maxSize = parseInt(btn.dataset.size);
+                        this.sizeInput.value = this.maxSize;
+                        this.customLabel.textContent = this.maxSize + 'px';
+                    };
+                });
+
+                // Size input
+                this.sizeInput.onchange = () => {
+                    const v = parseInt(this.sizeInput.value);
+                    if (v >= 100 && v <= 8192) {
+                        this.maxSize = v;
+                        this.customLabel.textContent = v + 'px';
+                    }
+                };
+
+                // Quality input
+                this.qualityInput.onchange = () => {
+                    const v = parseInt(this.qualityInput.value);
+                    if (v >= 60 && v <= 100) this.quality = v / 100;
+                };
+
+                // Format buttons
+                document.querySelectorAll('.format-btn').forEach(btn => {
+                    btn.onclick = () => {
+                        document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.format = btn.dataset.format;
+                    };
+                });
+
+                // Actions
+                document.getElementById('downloadAllBtn').onclick = () => this.downloadAll();
+                document.getElementById('clearBtn').onclick = () => this.clearAll();
+            }
+
+            async processFiles(files) {
+                this.processing.style.display = 'flex';
+                let processed = 0;
+                for (const file of files) {
+                    try {
+                        let f = file;
+                        if (/\.(heic|heif)$/i.test(file.name) || file.type.includes('heic')) {
+                            f = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.95 });
+                            if (Array.isArray(f)) f = f[0];
+                        }
+                        const result = await this.resize(f, file.name);
+                        this.images.push(result);
+                        this.addCard(result);
+                    } catch (e) { console.error(e); }
+                    processed++;
+                    this.updateProgress(processed, files.length);
+                }
+                this.processing.style.display = 'none';
+                this.updatePreview();
+            }
+
+            resize(file, originalName) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const { w, h } = this.calcSize(img.width, img.height);
+                            const canvas = document.createElement('canvas');
+                            canvas.width = w; canvas.height = h;
+                            const ctx = canvas.getContext('2d');
+                            ctx.imageSmoothingQuality = 'high';
+                            ctx.drawImage(img, 0, 0, w, h);
+                            const mime = this.format === 'png' ? 'image/png' : this.format === 'webp' ? 'image/webp' : 'image/jpeg';
+                            canvas.toBlob(blob => {
+                                resolve({
+                                    id: Date.now() + Math.random(),
+                                    name: this.newName(originalName),
+                                    origW: img.width, origH: img.height,
+                                    newW: w, newH: h,
+                                    origSize: this.fmtSize(file.size),
+                                    newSize: this.fmtSize(blob.size),
+                                    blob, url: URL.createObjectURL(blob)
+                                });
+                            }, mime, this.quality);
+                        };
+                        img.onerror = reject;
+                        img.src = e.target.result;
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            calcSize(w, h) {
+                if (w <= this.maxSize && h <= this.maxSize) return { w, h };
+                const r = w / h;
+                return w > h ? { w: this.maxSize, h: Math.round(this.maxSize / r) } : { w: Math.round(this.maxSize * r), h: this.maxSize };
+            }
+
+            newName(name) {
+                const base = name.lastIndexOf('.') > 0 ? name.substring(0, name.lastIndexOf('.')) : name;
+                const ext = this.format === 'jpeg' ? 'jpg' : this.format;
+                return `${base}_${this.maxSize}px.${ext}`;
+            }
+
+            fmtSize(bytes) {
+                if (!bytes) return '0 B';
+                const k = 1024, s = ['B', 'KB', 'MB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return (bytes / Math.pow(k, i)).toFixed(1) + ' ' + s[i];
+            }
+
+            addCard(img) {
+                const card = document.createElement('div');
+                card.className = 'image-card';
+                card.dataset.id = img.id;
+                card.innerHTML = `
+                <img class="image-thumb" src="${img.url}" alt="">
+                <div class="image-info">
+                    <div class="image-name">${img.name}</div>
+                    <div class="image-stats">
+                        ${img.origW}×${img.origH} → <span class="new">${img.newW}×${img.newH}</span><br>
+                        ${img.origSize} → <span class="new">${img.newSize}</span>
+                    </div>
+                </div>
+                <div class="image-actions">
+                    <button class="icon-btn download" title="Tải về"><span class="material-icons" style="font-size:18px">download</span></button>
+                    <button class="icon-btn delete" title="Xóa"><span class="material-icons" style="font-size:18px">close</span></button>
+                </div>
+            `;
+                card.querySelector('.download').onclick = () => this.download(img);
+                card.querySelector('.delete').onclick = () => this.remove(img.id);
+                this.previewGrid.appendChild(card);
+            }
+
+            download(img) {
+                const a = document.createElement('a');
+                a.href = img.url;
+                a.download = img.name;
+                a.click();
+            }
+
+            remove(id) {
+                const i = this.images.findIndex(x => x.id === id);
+                if (i > -1) { URL.revokeObjectURL(this.images[i].url); this.images.splice(i, 1); }
+                const card = this.previewGrid.querySelector(`[data-id="${id}"]`);
+                if (card) { card.style.opacity = '0'; setTimeout(() => { card.remove(); this.updatePreview(); }, 200); }
+            }
+
+            downloadAll() {
+                this.images.forEach((img, i) => setTimeout(() => this.download(img), i * 100));
+                this.toast('Đang tải ' + this.images.length + ' ảnh...', 'success');
+            }
+
+            clearAll() {
+                this.images.forEach(x => URL.revokeObjectURL(x.url));
+                this.images = [];
+                this.previewGrid.innerHTML = '';
+                this.updatePreview();
+            }
+
+            updatePreview() {
+                this.imageCount.textContent = this.images.length;
+                this.previewSection.style.display = this.images.length ? 'block' : 'none';
+            }
+
+            updateProgress(cur, total) {
+                const p = Math.round((cur / total) * 100);
+                this.progressFill.style.width = p + '%';
+                this.progressText.textContent = p + '%';
+            }
+
+            toast(msg, type = 'info') {
+                const t = document.createElement('div');
+                t.className = 'toast ' + type;
+                t.textContent = msg;
+                document.getElementById('toastContainer').appendChild(t);
+                setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3000);
+            }
+        }
+
+        new ImageResizer();
+    </script>
 </body>
 
-
 </html>
-
